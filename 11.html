@@ -2,200 +2,114 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>مقابلة قانونية - تسجيل الدخول</title>
+  <title>مقابلة قانونية</title>
+  <!-- مكتبة html2pdf لتحويل HTML إلى PDF مع دعم UTF-8 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- خط Cairo لتحسين عرض النصوص العربية -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f3f3; margin:0; padding:0; direction: rtl; }
-    .container { max-width: 800px; margin:50px auto; background:#fff; padding:40px; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
-    h1 { color:#2b579a; text-align:center; margin-bottom:30px; }
-    .alert { background:#e5f1fb; border:1px solid #c7e0f4; padding:20px; border-radius:8px; color:#004578; margin-bottom:30px; font-size:15px; line-height:1.8; }
-    label { font-weight:bold; display:block; margin:15px 0 5px; color:#333; }
-    input, textarea { width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:6px; font-size:14px; box-sizing:border-box; }
-    textarea { resize:vertical; }
-    button { background:#0078d4; color:#fff; border:none; border-radius:6px; padding:10px 20px; margin:15px 5px 0 0; font-size:15px; cursor:pointer; transition:background 0.2s; }
-    button:hover { background:#005a9e; }
-    .timer { font-size:20px; color:#d13438; font-weight:bold; margin-top:10px; }
-    .question { font-size:17px; color:#333; font-weight:500; margin-bottom:15px; }
-    .log-box { font-size:13px; text-align:right; margin-top:20px; background:#f9f9f9; border:1px dashed #ccc; border-radius:6px; padding:10px; max-height:150px; overflow-y:auto; }
-    #userNameBox { position:fixed; top:15px; left:15px; background:#e5f1fb; color:#004578; padding:8px 15px; border-radius:6px; font-weight:bold; display:none; box-shadow:0 2px 5px rgba(0,0,0,0.1); z-index:999; }
-    .hidden { display:none; }
+    body { font-family: 'Cairo', sans-serif; background-color: #f3f3f3; direction: rtl; margin: 0; padding: 0; }
+    .container { max-width: 800px; width: 90%; margin: 30px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h3 { color: #2b579a; margin-bottom: 20px; text-align: center; }
+    label { font-weight: bold; display: block; margin: 15px 0 5px; }
+    input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { display: inline-block; background: #0078d4; color: #fff; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+    button:hover { background: #005a9e; }
+    /* محتوى PDF مخفي إفتراضياً */
+    #pdfContent { display: none; font-family: 'Cairo', sans-serif; background: #ffffff; padding: 24pt; box-sizing: border-box; width: 595pt; margin: 0 auto; }
+    #pdfContent .pdf-header { background: #2b579a; color: #ffffff; padding: 12pt; border-radius: 6pt 6pt 0 0; text-align: center; font-size: 18pt; margin-bottom: 20pt; }
+    #pdfContent .user-info { display: flex; justify-content: space-between; background: #f0f8ff; padding: 12pt; border-radius: 6pt; margin-bottom: 20pt; font-size: 11pt; }
+    #pdfContent .user-info div { width: 32%; }
+    #pdfContent .qa-card { border: 1pt solid #ddd; border-radius: 6pt; padding: 10pt; margin-bottom: 12pt; }
+    #pdfContent .qa-card .question { color: #005a9e; font-size: 13pt; font-weight: bold; margin-bottom: 6pt; }
+    #pdfContent .qa-card .answer { color: #333; font-size: 12pt; background: #fafafa; padding: 8pt; border-radius: 4pt; line-height: 1.4; }
   </style>
 </head>
 <body>
-  <div id="userNameBox"></div>
   <div class="container">
-    <!-- Login Screen -->
-    <div id="loginContainer">
-      <h1>تسجيل الدخول</h1>
-      <label>البريد الإلكتروني:</label>
-      <input type="email" id="loginEmail" oninput="this.value=this.value.replace(/[^a-zA-Z0-9@._-]/g,'')">
-      <label>كود الدخول:</label>
-      <input type="password" id="loginCode" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');checkLoginInput();">
-      <button id="loginBtn" onclick="validateLogin()" disabled>دخول</button>
-    </div>
-
-    <!-- User Data Form -->
-    <div id="userForm" class="hidden">
-      <h1>مقابلة قانونية</h1>
-      <div class="alert">
-        <strong>تنبيه:</strong><br>
-        هذه المقابلة تتكون من أسئلة كتابية فقط، ولا توجد مقابلة شخصية لاحقة.<br>
-        لكل سؤال مدة زمنية قدرها <strong>15 دقيقة</strong>، بعد الانتقال يُحتسب الوقت المتبقي للسؤال.<br>
-        لا يمكن تعديل الإجابة بعد انتهاء الوقت. يمكن الرجوع للسؤال السابق إذا لم ينتهِ وقته.
-      </div>
-      <label>الاسم الكامل:</label>
-      <input type="text" id="fullName">
-      <label>البريد الإلكتروني:</label>
-      <input type="email" id="email" oninput="this.value=this.value.replace(/[^a-zA-Z0-9@._-]/g,'')">
-      <label>رقم الجوال:</label>
-      <input type="text" id="phone" inputmode="numeric" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      <small>مثال: 05XXXXXXXX</small>
-      <label>الراتب المتوقع:</label>
-      <input type="text" id="expectedSalary" inputmode="numeric" maxlength="5" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    <!-- شاشة بيانات المستخدم -->
+    <div id="userForm">
+      <h3>البيانات الشخصية</h3>
+      <label for="fullName">الاسم الكامل:</label>
+      <input type="text" id="fullName" placeholder="الاسم الكامل" required>
+      <label for="phone">رقم الجوال:</label>
+      <input type="text" id="phone" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
+      <label for="expectedSalary">الراتب المتوقع:</label>
+      <input type="text" id="expectedSalary" inputmode="numeric" maxlength="5" placeholder="الراتب المتوقع" oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
       <button onclick="validateAndStart()">بدء المقابلة</button>
     </div>
 
-    <!-- Questions Screen -->
-    <div id="questionContainer" class="hidden">
-      <h1>مقابلة قانونية</h1>
-      <div class="alert">
-        <strong>تنبيه:</strong><br>
-        هذه المقابلة تتكون من أسئلة كتابية فقط، ولا توجد مقابلة شخصية لاحقة.<br>
-        لكل سؤال مدة زمنية قدرها <strong>15 دقيقة</strong>، بعد الانتقال يُحتسب الوقت المتبقي للسؤال.<br>
-        لا يمكن تعديل الإجابة بعد انتهاء الوقت. يمكن الرجوع للسؤال السابق إذا لم ينتهِ وقته.
-      </div>
-      <div class="question" id="questionText"></div>
-      <div class="timer" id="timer">15:00</div>
-      <textarea id="answer" placeholder="اكتب إجابتك هنا..."></textarea>
-      <div class="log-box" id="logBox"></div>
-      <button id="prevBtn" onclick="prevQuestion()">السابق</button>
-      <button id="nextBtn" onclick="nextQuestion()">التالي</button>
-      <button id="submitBtn" onclick="submitInterview()">إرسال الإجابات</button>
+    <!-- شاشة المقابلة -->
+    <div id="interview" style="display:none;">
+      <h3>مقابلة قانونية</h3>
+      <div id="questions"></div>
+      <button onclick="preparePdf()">تحميل الإجابات PDF</button>
     </div>
 
-    <!-- Final Screen -->
-    <div id="finalContainer" class="hidden">
-      <h1>شكرًا لمشاركتك!</h1>
-      <p>شكرا لإجابتك على الأسئلة ونتمنى لك التوفيق والنجاح في مسيرتك المهنية.</p>
+    <!-- شاشة الشكر -->
+    <div id="thanks" style="display:none; text-align:center;">
+      <h3>شكرًا لمشاركتك!</h3>
+      <p>تم تحميل إجاباتك بنجاح.</p>
     </div>
   </div>
 
+  <!-- محتوى PDF مخفي -->
+  <div id="pdfContent">
+    <div class="pdf-header">مقابلة قانونية - إجابات المتقدم</div>
+    <div class="user-info">
+      <div>الاسم: <strong id="pdfName"></strong></div>
+      <div>الجوال: <strong id="pdfPhone"></strong></div>
+      <div>الراتب المتوقع: <strong id="pdfSalary"></strong></div>
+    </div>
+    <div id="pdfQuestions"></div>
+  </div>
+
   <script>
-    // توليد 26 كود للحسابات
-    let allowedCodes = JSON.parse(localStorage.getItem('allowedCodes')) || Array.from({length:26}, (_, i) => `ACC${String(i+1).padStart(2,'0')}`);
-    let usedCodes = JSON.parse(localStorage.getItem('usedCodes')) || [];
-
-    // عند تحميل الصفحة، التحقق من تسجيل الدخول
-    window.onload = function() {
-      if (localStorage.getItem('loggedIn')) {
-        document.getElementById('loginContainer').classList.add('hidden');
-        document.getElementById('userForm').classList.remove('hidden');
-      }
-    };
-
-    // التحقق من إمكانية تفعيل زر الدخول
-    function checkLoginInput() {
-      const code = document.getElementById('loginCode').value.trim();
-      const btn = document.getElementById('loginBtn');
-      btn.disabled = !(allowedCodes.includes(code) && !usedCodes.includes(code));
-    }
-
-
-
-    function validateLogin() {
-      const email = document.getElementById('loginEmail').value.trim();
-      const code = document.getElementById('loginCode').value.trim();
-      if (!email || !code) { alert('يرجى إدخال البريد الإلكتروني وكود الدخول.'); return; }
-      document.getElementById('loginContainer').classList.add('hidden');
-      document.getElementById('userForm').classList.remove('hidden');
-    }
-
+    let userName = '', userPhone = '', userSalary = '';
     const questions = [
       "1- ما هي آلية إدارة شركة ذات مسؤولية محدودة متعددة الشركاء والمدراء إذا لم ينص عقد التأسيس على ذلك، ولا يوجد مجلس مدراء، مع تساوي نسب الشركاء وعدم إمكانية التوافق بينهم؟",
       "2- هل أجاز النظام لمدير الشركة تحرير سند لأمر أو شيك لنفسه؟ وما هو المسوغ النظامي لذلك؟",
       "3- هل يجوز لأحد الشركاء، إن كان مديناً لشركة هو شريك بها، أن يتقدم لقاضي التنفيذ بالحجز على حصصه في الشركة للوفاء بالدين الذي في ذمته للشركة؟"
     ];
-    let answers = Array(questions.length).fill('');
-    let logs = Array(questions.length).fill('');
-    let timeLefts = Array(questions.length).fill(900);
-    let locked = Array(questions.length).fill(false);
-    let currentQuestion = 0;
-    let timerInterval;
-
-    function startCountdown() {
-      clearInterval(timerInterval);
-      let remaining = timeLefts[currentQuestion];
-      const timerDisplay = document.getElementById('timer');
-      function updateTimer() {
-        const m = String(Math.floor(remaining/60)).padStart(2,'0');
-        const s = String(remaining%60).padStart(2,'0');
-        timerDisplay.textContent = `${m}:${s}`;
-      }
-      updateTimer();
-      timerInterval = setInterval(() => {
-        remaining--;
-        answers[currentQuestion] = document.getElementById('answer').value;
-        timeLefts[currentQuestion] = remaining;
-        updateTimer();
-        if (remaining <= 0) {
-          clearInterval(timerInterval);
-          locked[currentQuestion] = true;
-          document.getElementById('answer').disabled = true;
-          timerDisplay.textContent = 'انتهى الوقت';
-        }
-      }, 1000);
-    }
 
     function validateAndStart() {
-      const name = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const salary = document.getElementById('expectedSalary').value.trim();
-      const allowed = ['gmail.com','hotmail.com','outlook.com','yahoo.com'];
-      const domain = email.split('@')[1];
-      if (!name||!email||!phone||!salary) { alert('يرجى تعبئة جميع الحقول.'); return; }
-      if (!/^05\d{8}$/.test(phone))  { alert('رقم الجوال يجب أن يتكون من 10 أرقام ويبدأ بـ05.'); return; }
-      if (!/^\d{1,5}$/.test(salary)) { alert('الراتب المتوقع يجب أن يكون رقماً ولا يزيد عن 5 أرقام.'); return; }
-      if (!allowed.includes(domain))   { alert('يرجى استخدام بريد Gmail/Hotmail/Outlook/Yahoo فقط.'); return; }
-      document.getElementById('userForm').classList.add('hidden');
-      document.getElementById('questionContainer').classList.remove('hidden');
-      showQuestion();
+      userName = document.getElementById('fullName').value.trim();
+      userPhone = document.getElementById('phone').value.trim();
+      userSalary = document.getElementById('expectedSalary').value.trim();
+      if (!userName || !userPhone || !userSalary) { alert('يرجى تعبئة جميع الحقول.'); return; }
+      if (!/^05\d{8}$/.test(userPhone)) { alert('رقم الجوال يجب أن يتكون من 10 أرقام ويبدأ بـ05.'); return; }
+      if (!/^\d{1,5}$/.test(userSalary)) { alert('الراتب المتوقع يجب أن يكون رقماً ولا يزيد عن 5 أرقام.'); return; }
+      document.getElementById('userForm').style.display = 'none';
+      startInterview();
     }
 
-    function showQuestion() {
-      document.getElementById('questionText').textContent = questions[currentQuestion];
-      document.getElementById('answer').value = answers[currentQuestion] || '';
-      document.getElementById('answer').disabled = locked[currentQuestion];
-      document.getElementById('logBox').innerHTML = logs[currentQuestion] || '';
-      document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'inline-block' : 'none';
-      document.getElementById('nextBtn').style.display = currentQuestion < questions.length-1 ? 'inline-block' : 'none';
-      document.getElementById('submitBtn').style.display = currentQuestion === questions.length-1 ? 'inline-block' : 'none';
-      startCountdown();
+    function startInterview() {
+      let qDiv = '';
+      questions.forEach((q, i) => {
+        qDiv += `<label>${q}</label><textarea id="q${i}" rows="4"></textarea>`;
+      });
+      document.getElementById('questions').innerHTML = qDiv;
+      document.getElementById('interview').style.display = 'block';
     }
 
-    function nextQuestion() {
-      alert("تم الانتقال إلى السؤال التالي. سيتم الآن احتساب الوقت المتاح للإجابة.");
-      answers[currentQuestion] = document.getElementById('answer').value;
-      logs[currentQuestion] = `تم الحفظ عند: ${new Date().toLocaleTimeString()}`;
-      clearInterval(timerInterval);
-      if (currentQuestion < questions.length-1) currentQuestion++;
-      showQuestion();
-    }
-
-    function prevQuestion() {
-      if (currentQuestion > 0) {
-        answers[currentQuestion] = document.getElementById('answer').value;
-        logs[currentQuestion] = `تم الحفظ عند: ${new Date().toLocaleTimeString()}`;
-        clearInterval(timerInterval);
-        currentQuestion--;
-        showQuestion();
-      }
-    }
-
-    function submitInterview() {
-      answers[currentQuestion] = document.getElementById('answer').value;
-      logs[currentQuestion] = `تم الحفظ عند: ${new Date().toLocaleTimeString()}`;
-      document.getElementById('questionContainer').classList.add('hidden');
-      document.getElementById('finalContainer').classList.remove('hidden');
+    function preparePdf() {
+      document.getElementById('pdfName').textContent = userName;
+      document.getElementById('pdfPhone').textContent = userPhone;
+      document.getElementById('pdfSalary').textContent = userSalary;
+      let html = '';
+      questions.forEach((q, i) => {
+        const ans = document.getElementById(`q${i}`).value || '-';
+        html += `<div class="qa-card"><div class="question">${q}</div><div class="answer">${ans}</div></div>`;
+      });
+      document.getElementById('pdfQuestions').innerHTML = html;
+      const element = document.getElementById('pdfContent');
+      element.style.display = 'block';
+      const opt = { margin: 10, filename: 'الإجابات.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } };
+      html2pdf().set(opt).from(element).save().then(() => {
+        element.style.display = 'none';
+        document.getElementById('interview').style.display = 'none';
+        document.getElementById('thanks').style.display = 'block';
+      });
     }
   </script>
 </body>

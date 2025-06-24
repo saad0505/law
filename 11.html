@@ -8,109 +8,114 @@
   <!-- خط Cairo للنص العربي -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #305496;
+      --secondary: #567ace;
+      --bg: #f8f9fa;
+      --text: #333;
+    }
     body {
       font-family: 'Cairo', sans-serif;
-      background-color: #f0f2f5;
+      background: var(--bg);
       direction: rtl;
       margin: 0;
       padding: 0;
     }
     .container {
       max-width: 800px;
-      width: 95%;
+      width: 90%;
       margin: 40px auto;
-      background: #ffffff;
+      background: #fff;
       padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     h3 {
-      color: #1f2a57;
-      margin-bottom: 20px;
+      color: var(--primary);
       text-align: center;
-      font-size: 24px;
+      margin-bottom: 24px;
+      font-size: 22px;
+      font-weight: 700;
     }
     label {
-      font-weight: 700;
-      margin-top: 15px;
       display: block;
-      color: #333;
-      font-size: 14px;
+      font-weight: 600;
+      margin: 16px 0 8px;
+      color: var(--text);
     }
     input, textarea {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      margin-bottom: 15px;
+      padding: 10px 12px;
       border: 1px solid #ccd0d5;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 14px;
+      color: var(--text);
       box-sizing: border-box;
     }
-    textarea { resize: vertical; }
+    textarea { resize: vertical; min-height: 80px; }
     button {
-      background: #4a69bd;
+      background: var(--primary);
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 12px 24px;
-      cursor: pointer;
       font-size: 15px;
-      transition: background 0.2s;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 24px auto 0;
       display: block;
-      margin: 20px auto;
+      transition: background 0.3s;
     }
-    button:hover { background: #3b4a99; }
-    /* محتوى PDF مخفي */
+    button:hover { background: var(--secondary); }
+    /* PDF content */
     #pdfContent {
       display: none;
-      font-family: 'Cairo', sans-serif;
-      background: #ffffff;
-      padding: 20mm;
-      box-sizing: border-box;
       width: 210mm;
       min-height: 297mm;
+      padding: 20mm;
+      margin: 0;
+      background: #fff;
+      box-sizing: border-box;
     }
     #pdfContent .pdf-header {
-      background: linear-gradient(90deg, #4a69bd, #6a89cc);
-      color: #ffffff;
-      padding: 10px;
-      border-radius: 8px;
+      width: 100%;
+      padding-bottom: 8pt;
+      margin-bottom: 12pt;
+      border-bottom: 2pt solid var(--primary);
+      font-size: 24pt;
+      font-weight: 700;
+      color: var(--primary);
       text-align: center;
-      font-size: 22pt;
-      margin-bottom: 15pt;
-      page-break-after: avoid;
     }
     #pdfContent .user-info {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10pt;
-      background: #eef1fa;
-      padding: 10pt;
-      border-radius: 6pt;
-      margin-bottom: 20pt;
+      display: flex;
+      justify-content: space-between;
+      background: #eef2fb;
+      padding: 8pt;
+      border-radius: 4pt;
+      margin-bottom: 16pt;
       font-size: 11pt;
-      page-break-inside: avoid;
+      color: var(--text);
     }
-    #pdfContent .user-info div { }
+    #pdfContent .user-info div { width: 32%; }
     #pdfContent .qa-card {
-      background: #f9f9fb;
-      border-left: 4pt solid #4a69bd;
+      margin-bottom: 14pt;
       padding: 10pt;
-      margin-bottom: 15pt;
+      border: 1pt solid #dde0e6;
+      border-left: 6pt solid var(--primary);
       border-radius: 4pt;
       page-break-inside: avoid;
     }
     #pdfContent .qa-card .question {
-      font-size: 13pt;
-      font-weight: bold;
-      color: #2d3e50;
-      margin-bottom: 6pt;
+      font-size: 12pt;
+      font-weight: 600;
+      margin-bottom: 4pt;
+      color: var(--primary);
     }
     #pdfContent .qa-card .answer {
-      font-size: 12pt;
-      color: #333;
+      font-size: 11pt;
       line-height: 1.5;
+      color: var(--text);
       white-space: pre-wrap;
     }
   </style>
@@ -118,31 +123,29 @@
 <body>
   <div class="container" id="userForm">
     <h3>البيانات الشخصية</h3>
-    <label for="fullName">الاسم الكامل:</label>
+    <label for="fullName">الاسم الكامل</label>
     <input type="text" id="fullName" placeholder="الاسم الكامل" required>
-    <label for="phone">رقم الجوال:</label>
-    <input type="text" id="phone" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX"
-           oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
-    <label for="expectedSalary">الراتب المتوقع:</label>
-    <input type="text" id="expectedSalary" inputmode="numeric" maxlength="5" placeholder="الراتب المتوقع"
-           oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
-    <button onclick="validateAndStart()">بدء المقابلة</button>
+    <label for="phone">رقم الجوال</label>
+    <input type="text" id="phone" maxlength="10" placeholder="05XXXXXXXX" oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
+    <label for="expectedSalary">الراتب المتوقع</label>
+    <input type="text" id="expectedSalary" maxlength="5" placeholder="الراتب المتوقع" oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
+    <button onclick="startInterview()">بدء المقابلة</button>
   </div>
 
   <div class="container" id="interview" style="display:none;">
     <h3>مقابلة قانونية</h3>
     <div id="questions"></div>
-    <button onclick="preparePdf()">تحميل الإجابات PDF</button>
+    <button onclick="generatePdf()">تحميل الإجابات PDF</button>
   </div>
 
   <div class="container" id="thanks" style="display:none; text-align:center;">
     <h3>شكرًا لمشاركتك!</h3>
-    <p>تم تحميل إجاباتك بنجاح.</p>
+    <p>تم تحميل الإجابات بنجاح.</p>
   </div>
 
-  <!-- محتوى PDF مخفي -->
+  <!-- PDF content hidden -->
   <div id="pdfContent">
-    <div class="pdf-header">مقابلة قانونية - إجابات المتقدم</div>
+    <div class="pdf-header">إجابات المقابلة القانونية</div>
     <div class="user-info">
       <div>الاسم: <strong id="pdfName"></strong></div>
       <div>الجوال: <strong id="pdfPhone"></strong></div>
@@ -152,63 +155,45 @@
   </div>
 
   <script>
-    let userName = '', userPhone = '', userSalary = '';
+    let userName, userPhone, userSalary;
     const questions = [
       "1- ما هي آلية إدارة شركة ذات مسؤولية محدودة متعددة الشركاء والمدراء إذا لم ينص عقد التأسيس على ذلك، ولا يوجد مجلس مدراء، مع تساوي نسب الشركاء وعدم إمكانية التوافق بينهم؟",
       "2- هل أجاز النظام لمدير الشركة تحرير سند لأمر أو شيك لنفسه؟ وما هو المسوغ النظامي لذلك؟",
       "3- هل يجوز لأحد الشركاء، إن كان مديناً لشركة هو شريك بها، أن يتقدم لقاضي التنفيذ بالحجز على حصصه في الشركة للوفاء بالدين الذي في ذمته للشركة؟"
     ];
-
-    function validateAndStart() {
+    function startInterview() {
       userName = document.getElementById('fullName').value.trim();
       userPhone = document.getElementById('phone').value.trim();
       userSalary = document.getElementById('expectedSalary').value.trim();
-      if (!userName || !userPhone || !userSalary) { alert('يرجى تعبئة جميع الحقول.'); return; }
-      if (!/^05\d{8}$/.test(userPhone)) { alert('رقم الجوال يجب أن يتكون من 10 أرقام ويبدأ بـ05.'); return; }
-      if (!/^\d{1,5}$/.test(userSalary)) { alert('الراتب المتوقع يجب أن يكون رقماً ولا يزيد عن 5 أرقام.'); return; }
-      document.getElementById('userForm').style.display = 'none';
-      document.getElementById('interview').style.display = 'block';
-      startInterview();
-    }
-
-    function startInterview() {
-      const container = document.getElementById('questions');
-      container.innerHTML = '';
-      questions.forEach((q, i) => {
-        const label = document.createElement('label');
-        label.textContent = q;
-        const textarea = document.createElement('textarea');
-        textarea.id = `q${i}`;
-        textarea.rows = 4;
-        container.appendChild(label);
-        container.appendChild(textarea);
+      if (!userName||!userPhone||!userSalary) { alert('يرجى تعبئة جميع الحقول.'); return; }
+      if (!/^05\d{8}$/.test(userPhone)) { alert('رقم الجوال غير صالح.'); return; }
+      if (!/^\d{1,5}$/.test(userSalary)) { alert('الراتب المتوقع غير صالح.'); return; }
+      document.getElementById('userForm').style.display='none';
+      document.getElementById('interview').style.display='block';
+      const qDiv=document.getElementById('questions'); qDiv.innerHTML='';
+      questions.forEach((q,i)=>{
+        qDiv.innerHTML+=`<label>${q}</label><textarea id='q${i}' rows='4'></textarea>`;
       });
     }
-
-    function preparePdf() {
-      document.getElementById('pdfName').textContent = userName;
-      document.getElementById('pdfPhone').textContent = userPhone;
-      document.getElementById('pdfSalary').textContent = userSalary;
-      let html = '';
-      questions.forEach((q, i) => {
-        const ans = document.getElementById(`q${i}`).value || '-';
-        html += `<div class="qa-card"><div class="question">${q}</div><div class="answer">${ans}</div></div>`;
+    function generatePdf() {
+      document.getElementById('pdfName').textContent=userName;
+      document.getElementById('pdfPhone').textContent=userPhone;
+      document.getElementById('pdfSalary').textContent=userSalary;
+      let html='';
+      questions.forEach((q,i)=>{
+        const ans=document.getElementById(`q${i}`).value.trim()||'-';
+        html+=`<div class='qa-card'><div class='question'>${q}</div><div class='answer'>${ans}</div></div>`;
       });
-      document.getElementById('pdfQuestions').innerHTML = html;
-      const element = document.getElementById('pdfContent');
-      element.style.display = 'block';
-      const opt = {
-        margin: 10,
-        filename: 'الإجابات.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
-      };
-      html2pdf().set(opt).from(element).save().then(() => {
-        element.style.display = 'none';
-        document.getElementById('interview').style.display = 'none';
-        document.getElementById('thanks').style.display = 'block';
+      document.getElementById('pdfQuestions').innerHTML=html;
+      const el=document.getElementById('pdfContent'); el.style.display='block';
+      html2pdf().set({
+        margin: [10,10,10,10],
+        filename:'الإجابات.pdf',
+        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+        html2canvas:{scale:2,useCORS:true},
+        pagebreak:{mode:['avoid-all','css','legacy']}
+      }).from(el).save().then(()=>{
+        el.style.display='none'; document.getElementById('interview').style.display='none'; document.getElementById('thanks').style.display='block';
       });
     }
   </script>
